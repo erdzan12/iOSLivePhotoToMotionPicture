@@ -1,75 +1,135 @@
-MotionPhotoMuxer
-================
+# 📸 iOSLivePhotoToMotionPicture
 
-> **Note**
-> I've switched back to Android for the time being. I do have access to an iPhone for testing, but
-> likely won't be focusing on developing this much further.
+**iOSLivePhotoToMotionPicture** is a Python utility for converting iOS Live Photos (HEIC + MOV pairs) into Google Motion Photo-compatible formats. It handles the conversion of `.HEIC` files to `.JPEG`, merges them with associated videos, and preserves EXIF metadata.
 
-Convert Apple Live Photos into Google Motion Photos commonly found on Android phones.
+---
 
-# Installation
+## 🌟 Features
 
-As of right now, this script only has one dependency, `py3exiv2`. Unfortunately
-this requires building a C++ library to install, so you need to install a C++ toolchain.
+- 🔄 **Convert HEIC to JPEG**: Seamlessly convert `.HEIC` images to `.JPEG` with EXIF metadata intact.
+- 🎥 **Merge Photos and Videos**: Combine images and videos into Google Motion Photo-compatible formats.
+- 🗂️ **Batch Processing**: Process entire directories of photos and videos.
+- 🕒 **Efficiency**: Designed for easy integration into workflows.
 
-Using Ubuntu as an example:
+---
 
-~~~bash
-sudo apt-get install build-essential python-all-dev libexiv2-dev libboost-python-dev python3 python3-pip python3-venv
-python3 -m pip install -r requirements.txt
-~~~
+## 📖 Table of Contents
 
-## Installing on a Pixel/Android Phone
+1. [🚀 Installation](#-installation)
+   - [Using Docker](#using-docker)
+   - [Without Docker](#without-docker)
+2. [🛠️ Usage](#️-usage)
+   - [Using with Docker](#using-with-docker)
+   - [Using without Docker](#using-without-docker)
+3. [⚙️ Command-Line Arguments](#️-command-line-arguments)
+4. [🔍 Example Commands](#-example-commands)
+5. [📜 Notes](#-notes)
 
-* Install [Termux from the F-Droid App store](https://f-droid.org/en/packages/com.termux/)
-* Install the following packages within Termux in order to satisfy the dependencies for `pyexiv2`:
+---
 
-~~~bash
-'pkg install python3'
-'pkg install git'
-'pkg install build-essential'
-'pkg install exiv2'
-'pkg install boost-headers'
-git clone https://github.com/mihir-io/MotionPhotoMuxer.git
-python3 -m pip install -r MotionPhotoMuxer/requirements.txt
-~~~
+## 🚀 Installation
 
-This should leave you with a working copy of MotionPhotoMuxer directly on your Pixel/other Android phone.
-You may want to make sure Termux has the "Storage" permission granted from within the system settings, if
-you plan on writing the output files to the `/sdcard/` partition.
+### Using Docker
 
+Ensure Docker is installed on your system. If not, download and install it from the [official Docker website](https://www.docker.com/).
 
-# Usage
+1. **Build the Docker Image**
 
-~~~
-usage: MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO] [--output OUTPUT] [--copyall]
+   ```bash
+   docker build -t ioslivephoto-to-motionpicture .
+   ```
 
-Merges a photo and video into a Microvideo-formatted Google Motion Photo
+2. **Run the Docker Container**
+   ```bash
+   docker run --rm -v /path/to/images:/app/images ioslivephoto-to-motionpicture
+   ```
 
-options:
-  -h, --help       show this help message and exit
-  --verbose        Show logging messages.
-  --dir DIR        Process a directory for photos/videos. Takes precedence over --photo/--video
-  --recurse        Recursively process a directory. Only applies if --dir is also provided
-  --photo PHOTO    Path to the JPEG photo to add.
-  --video VIDEO    Path to the MOV video to add.
-  --output OUTPUT  Path to where files should be written out to.
-  --copyall        Copy unpaired files to directory.
-~~~
+---
 
-A JPEG photo and MOV or MP4 video must be provided. The code only does simple
-error checking to see if the file extensions are `.jpg|.jpeg` and `.mov|.mp4`
-respectively, so if the actual photo/video encoding is something funky, things
-may not work right.
+### Without Docker
 
-> **Note**
-> The output motion photo tends to work more reliably in my experience if the input video is H.264 rather than HEVC.
+1. Install required system dependencies:
 
-This has been tested successfully on a couple photos taken on an iPhone 12 and
-uploaded to Google Photos through a Pixel XL, but there hasn't been any
-extensive testing done yet, so use at your own risk!
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y build-essential python3-dev libboost-python-dev libexiv2-dev libheif-examples python3-pip
+   ```
 
-# Credit
+2. Install Python dependencies:
 
-This wouldn't have been possible without the excellent writeup on the process
-of working with Motion Photos [here](https://medium.com/android-news/working-with-motion-photos-da0aa49b50c).
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run the script:
+   ```bash
+   python3 iOSLivePhotoToMotionPicture.py --dir /path/to/images --output /path/to/output --verbose
+   ```
+
+---
+
+## 🛠️ Usage
+
+### Using with Docker
+
+1. Place your Live Photo files (HEIC and MOV) in a directory, e.g., `/path/to/images`.
+2. Run the container, mounting your directory:
+   ```bash
+   docker run --rm -v /path/to/images:/app/images ioslivephoto-to-motionpicture
+   ```
+
+**Note**: Ensure that `/app/images` inside the container corresponds to your files' directory.
+
+---
+
+### Using without Docker
+
+1. Ensure dependencies are installed (see [Installation](#🚀-installation)).
+2. Execute the script:
+   ```bash
+   python3 iOSLivePhotoToMotionPicture.py --dir /path/to/images --output /path/to/output --verbose
+   ```
+
+---
+
+## ⚙️ Command-Line Arguments
+
+| Argument    | Description                                                       |
+| ----------- | ----------------------------------------------------------------- |
+| `--verbose` | Enables detailed logging output.                                  |
+| `--dir`     | Path to the directory containing images and videos.               |
+| `--recurse` | Recursively process subdirectories.                               |
+| `--photo`   | Path to a single photo file (when `--dir` is not used).           |
+| `--video`   | Path to a single video file (when `--dir` is not used).           |
+| `--output`  | Path to save processed files. Defaults to the `output` directory. |
+
+---
+
+## 🔍 Example Commands
+
+### Using with Docker
+
+```bash
+docker run --rm -v /path/to/images:/app/images ioslivephoto-to-motionpicture
+```
+
+### Using without Docker
+
+```bash
+python3 iOSLivePhotoToMotionPicture.py --dir /path/to/images --output /path/to/output --verbose
+```
+
+---
+
+## 📜 Notes
+
+- Ensure your `.HEIC` images and `.MOV` videos are named identically for correct pairing (e.g., `IMG_1234.HEIC` and `IMG_1234.MOV`).
+- Processed files will be saved in:
+  - `converted/` directory for converted `.JPEG` files.
+  - `final/` directory for merged Motion Photos and unprocessed files.
+- The tool currently processes files sequentially. A parallelized version is in development. 🚀
+- **HEIC Conversion**: The script does not rotate images, ensuring the original orientation is maintained.
+
+---
+
+## 🎉 Enjoy Using iOSLivePhotoToMotionPicture! 🎥📸✨

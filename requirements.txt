@@ -1,1 +1,4 @@
 py3exiv2==0.9.3
+pyheif
+Pillow
+piexif
